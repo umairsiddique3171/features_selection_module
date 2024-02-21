@@ -9,21 +9,17 @@ class Feature_Selection:
         self.X = X
         self.y = y
         self.drop = drop
-        # self.dataset = pd.concat([X, y], axis=1)
         
-        
-        
+            
     @property
     def dataset(self):
         
         return pd.concat([self.X,self.y],axis = 1)
         
-        
-        
+          
     def corr_matrix(self):
         
         return self.dataset.corr()
-        
         
         
     def corr_matrix_visual(self):
@@ -34,35 +30,38 @@ class Feature_Selection:
         # plt.cm. then you can any of the color in cmap
          
     
-    
     def const_features_selection(self,thresh):
     
         from sklearn.feature_selection import VarianceThreshold
         var_thres = VarianceThreshold(threshold = thresh)
         var_thres.fit(self.X)
-        print(var_thres.get_support())
-        print('')
-        print(f"Total Variable Features = {len(list(filter(lambda num : num == True ,var_thres.get_support().tolist() )))}")
-        print('')
-        print(f"Total Constant Features = {len(list(filter(lambda num : num == False ,var_thres.get_support().tolist() )))}")
-        print('')
         const_cols = [column for column in self.X.columns if column not in self.X.columns[var_thres.get_support()]]
-        print(f"Constant Columns = {const_cols}")
-        if (self.drop == 'y') or (self.drop == 'Y'):
-            self.X.drop(const_cols,axis = 1, inplace = True)
-            print("Features Dropped!")
+        if const_cols: 
+            print(var_thres.get_support())
+            print('')
+            print(f"Total Variable Features = {len(list(filter(lambda num : num == True ,var_thres.get_support().tolist() )))}")
+            print(f"Total Constant Features = {len(list(filter(lambda num : num == False ,var_thres.get_support().tolist() )))}")
+            print('')
+            print(f"Constant Columns = {const_cols}")
+            if (self.drop == 'y') or (self.drop == 'Y'):
+                self.X.drop(const_cols,axis = 1, inplace = True)
+                print("Features Dropped!")
+            else:
+                while True:
+                    a = input('Do you want to drop the constant features? (y/n) ')
+                    if (a == 'y') or (a == 'Y'):
+                        self.X.drop(const_cols,axis = 1, inplace = True)
+                        print("Features Dropped!")
+                        break 
+                    elif (a == 'n') or (a == 'N'):
+                        print("Features Not Dropped!")
+                        break
         else:
-            while True:
-                a = input('Do you want to drop the constant features? (y/n) ')
-                if (a == 'y') or (a == 'Y'):
-                    self.X.drop(const_cols,axis = 1, inplace = True)
-                    print("Features Dropped!")
-                    break 
-                elif (a == 'n') or (a == 'N'):
-                    print("Features Not Dropped!")
-                    break
-                    
-                    
+            print(f"Total Variable Features = {len(list(filter(lambda num : num == True ,var_thres.get_support().tolist() )))}")
+            print(f"Total Constant Features = {len(list(filter(lambda num : num == False ,var_thres.get_support().tolist() )))}")
+            print('')
+            print(f"All features have variance of more than {thresh}.")
+                             
                     
     def features_corr_filter(self,thresh):
         
@@ -73,22 +72,24 @@ class Feature_Selection:
                 if abs(corr_matrix.iloc[i,j]) > thresh:
                     colname = corr_matrix.columns[i]
                     col_corr.add(colname)
-        print(col_corr)
-        if (self.drop == 'y') or (self.drop == 'Y'):
-            self.X.drop(col_corr,axis = 1, inplace = True)
-            print("Features Dropped!")
+        if col_corr:
+            print(col_corr)
+            if (self.drop == 'y') or (self.drop == 'Y'):
+                self.X.drop(col_corr,axis = 1, inplace = True)
+                print("Features Dropped!")
+            else:
+                while True:
+                    a = input(f'Do you want to drop the feature with correlation above threshold {thresh} ? (y/n) ')
+                    if (a == 'y') or (a == 'Y'):
+                        self.X.drop(col_corr,axis = 1, inplace = True)
+                        print("Features Dropped!")
+                        break 
+                    elif (a == 'n') or (a == 'N'):
+                        print("Features Not Dropped!")
+                        break
         else:
-            while True:
-                a = input('Do you want to drop the feature with correlation above threshold? (y/n) ')
-                if (a == 'y') or (a == 'Y'):
-                    self.X.drop(col_corr,axis = 1, inplace = True)
-                    print("Features Dropped!")
-                    break 
-                elif (a == 'n') or (a == 'N'):
-                    print("Features Not Dropped!")
-                    break
-                    
-                    
+            print(f"All features have correlation of less than {thresh} with each other.")
+         
                     
     def features_corr_with_output_filter(self,thresh):
         col_corr = set()
@@ -97,23 +98,25 @@ class Feature_Selection:
         for i in range(len(corr_matrix.columns)):
             if abs(corr_matrix.iloc[i,-1]) <= thresh:
                 col_corr.add(corr_matrix.columns[i])
-        print(col_corr)
-        if (self.drop == 'y') or (self.drop == 'Y'):
-            self.X.drop(col_corr,axis = 1, inplace = True)
-            print("Features Dropped!")
-        else:
-            while True:
-                a = input('Do you want to drop the feature with correlation with output below threshold? (y/n) ')
-                if (a == 'y') or (a == 'Y'):
-                    self.X.drop(col_corr,axis = 1, inplace = True)
-                    print("Features Dropped!")
-                    break 
-                elif (a == 'n') or (a == 'N'):
-                    print("Features Not Dropped!")
-                    break
-                    
-                    
-                    
+        if col_corr: 
+            print(col_corr)
+            if (self.drop == 'y') or (self.drop == 'Y'):
+                self.X.drop(col_corr,axis = 1, inplace = True)
+                print("Features Dropped!")
+            else:
+                while True:
+                    a = input(f'Do you want to drop the feature with correlation with output below threshold {thresh} ? (y/n) ')
+                    if (a == 'y') or (a == 'Y'):
+                        self.X.drop(col_corr,axis = 1, inplace = True)
+                        print("Features Dropped!")
+                        break 
+                    elif (a == 'n') or (a == 'N'):
+                        print("Features Not Dropped!")
+                        break
+        else: 
+            print(f"All features have correlation of more than {thresh} with output.")
+        
+                             
     def features_corr_visual_filter(self,thresh):
         
         plt.figure(figsize=(10,10))
@@ -127,7 +130,6 @@ class Feature_Selection:
                     mask=mask,
                     linewidths=0.2, 
                     linecolor='lightgrey').set_facecolor('white')
-        
         
         
     def features_corr_with_output_visual_filter(self,thresh):
@@ -147,4 +149,6 @@ class Feature_Selection:
                     mask=mask,
                     linewidths=0.2, 
                     linecolor='lightgrey').set_facecolor('white')
+        
+        
     
