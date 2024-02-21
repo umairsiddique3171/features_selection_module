@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 
-class Feature_Selection:
+class Features_Selection:
     
     def __init__(self,X,y,drop = None):
         self.X = X
@@ -79,7 +79,7 @@ class Feature_Selection:
                 print("Features Dropped!")
             else:
                 while True:
-                    a = input(f'Do you want to drop the feature with correlation above threshold {thresh} ? (y/n) ')
+                    a = input(f'Do you want to drop the features with correlation above threshold {thresh} ? (y/n) ')
                     if (a == 'y') or (a == 'Y'):
                         self.X.drop(col_corr,axis = 1, inplace = True)
                         print("Features Dropped!")
@@ -105,7 +105,7 @@ class Feature_Selection:
                 print("Features Dropped!")
             else:
                 while True:
-                    a = input(f'Do you want to drop the feature with correlation with output below threshold {thresh} ? (y/n) ')
+                    a = input(f'Do you want to drop the features with correlation with output below threshold {thresh} ? (y/n) ')
                     if (a == 'y') or (a == 'Y'):
                         self.X.drop(col_corr,axis = 1, inplace = True)
                         print("Features Dropped!")
